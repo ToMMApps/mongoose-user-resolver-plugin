@@ -38,7 +38,7 @@ module.exports = function(schema, options){
                     if(cb) cb(err);
                     deferred.reject(err);
                 } else {
-                    if (instance.getUserId && util.isFunction(instance.getUserId)) {
+                    if (instance && instance.getUserId && util.isFunction(instance.getUserId)) {
                         if(cb) instance.getUserId(cb);
                         deferred.resolve(instance.getUserId());
                     } else {
