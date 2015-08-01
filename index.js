@@ -1,6 +1,5 @@
 var Q = require('q');
 var util = require('util');
-var mongoose = require('mongoose');
 
 module.exports = function(schema, options){
 
@@ -11,7 +10,7 @@ module.exports = function(schema, options){
      * If path equals 'id' or '_id' the resolver stops and returns the id.
      * @returns {promise}
      */
-    schema.methods.getUserId = function() {
+    schema.methods.getUserId = function(cb) {
         var deferred = Q.defer();
 
         if (!options || !options.path) {
@@ -22,17 +21,24 @@ module.exports = function(schema, options){
         var self = this;
 
         if(['id', '_id'].indexOf(path) !== -1){
+            if(cb) cb(null, self[path]);
             deferred.resolve(self[path]);
         } else if (util.isNullOrUndefined(self[path])) {
-            deferred.reject(new TypeError(path + "is null or undefined"));
+            var err = new TypeError(path + "is null or undefined");
+            if(cb) cb(err);
+            deferred.reject(err);
         } else if (self[path].getUserId && util.isFunction(self[path].getUserId)) {
+            if(cb) cb(null, self[path].getUserId());
             deferred.resolve(self[path].getUserId());
         } else {
             this.populate(path, function(){
                 if (self[path].getUserId && util.isFunction(self[path].getUserId)) {
+                    if(cb) cb(null, self[path].getUserId());
                     deferred.resolve(self[path].getUserId());
                 } else {
-                    deferred.reject(new TypeError(path + "has no such method 'getUserId'"));
+                    var err = new TypeError(path + "has no such method 'getUserId'");
+                    if(cb) cb(err);
+                    deferred.reject(err);
                 }
             });
         }
