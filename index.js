@@ -25,7 +25,7 @@ module.exports = function(schema, options){
             if(cb) cb(null, self[path]);
             deferred.resolve(self[path]);
         } else if (util.isNullOrUndefined(self[path])) {
-            var err = new TypeError(path + "is null or undefined");
+            var err = new TypeError(path + " is null or undefined");
             if(cb) cb(err);
             deferred.reject(err);
         } else if (self[path].getUserId && util.isFunction(self[path].getUserId)) {
@@ -42,7 +42,7 @@ module.exports = function(schema, options){
                         if(cb) instance.getUserId(cb);
                         deferred.resolve(instance.getUserId());
                     } else {
-                        err = new TypeError(path + "has no such method 'getUserId'");
+                        err = new TypeError(path + " has no such method 'getUserId'");
                         if(cb) cb(err);
                         deferred.reject(err);
                     }
