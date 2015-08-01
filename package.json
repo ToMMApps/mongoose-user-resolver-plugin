@@ -1,0 +1,19 @@
+{
+  "name": "mongoose-user-resolver-plugin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.tomm-apps.de:henning.gerrits/mongoose-user-resolver-plugin.git"
+  },
+  "author": "Henning Gerrits",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^4.1.0",
+    "q": "^1.4.1"
+  }
+}
