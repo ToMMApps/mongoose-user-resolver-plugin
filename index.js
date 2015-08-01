@@ -28,12 +28,12 @@ module.exports = function(schema, options){
             if(cb) cb(err);
             deferred.reject(err);
         } else if (self[path].getUserId && util.isFunction(self[path].getUserId)) {
-            if(cb) cb(null, self[path].getUserId());
+            if(cb) self[path].getUserId(cb);
             deferred.resolve(self[path].getUserId());
         } else {
             this.populate(path, function(){
                 if (self[path].getUserId && util.isFunction(self[path].getUserId)) {
-                    if(cb) cb(null, self[path].getUserId());
+                    if(cb) self[path].getUserId(cb);
                     deferred.resolve(self[path].getUserId());
                 } else {
                     var err = new TypeError(path + "has no such method 'getUserId'");
