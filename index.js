@@ -12,6 +12,7 @@ module.exports = function(schema, options){
      */
     schema.methods.getUserId = function(cb) {
         var deferred = Q.defer();
+        var mongoose = require('mongoose');
 
         if (!options || !options.path) {
             return Q.reject(new TypeError("options.path must be specified"));
@@ -31,14 +32,20 @@ module.exports = function(schema, options){
             if(cb) self[path].getUserId(cb);
             deferred.resolve(self[path].getUserId());
         } else {
-            this.populate(path, function(){
-                if (self[path].getUserId && util.isFunction(self[path].getUserId)) {
-                    if(cb) self[path].getUserId(cb);
-                    deferred.resolve(self[path].getUserId());
-                } else {
-                    var err = new TypeError(path + "has no such method 'getUserId'");
+            var referencedModel = schema.paths[path].options.ref;
+            mongoose.model(referencedModel).findById(self[path]).exec(function(err, instance){
+                if(err) {
                     if(cb) cb(err);
                     deferred.reject(err);
+                } else {
+                    if (instance.getUserId && util.isFunction(instance.getUserId)) {
+                        if(cb) instance.getUserId(cb);
+                        deferred.resolve(instance.getUserId());
+                    } else {
+                        err = new TypeError(path + "has no such method 'getUserId'");
+                        if(cb) cb(err);
+                        deferred.reject(err);
+                    }
                 }
             });
         }
