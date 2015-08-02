@@ -23,6 +23,7 @@ module.exports = function(schema, options){
         var self = this;
 
         if(options.stop){
+            if(cb) cb(null, self[path]);
             deferred.resolve(self[path]);
         } else if(['id', '_id'].indexOf(path) !== -1){
             if(cb) cb(null, self[path]);
