@@ -8,6 +8,7 @@ module.exports = function(schema, options){
      * Recursively dereferences the path entry that must be specified in the options
      * and calls getUserId on the resulting model. Throws an exception if getUserId is not defined.
      * If path equals 'id' or '_id' the resolver stops and returns the id.
+     * If stop is set to true the resolver returns path.
      * @returns {promise}
      */
     schema.methods.getUserId = function(cb) {
@@ -21,7 +22,9 @@ module.exports = function(schema, options){
         var path = options.path;
         var self = this;
 
-        if(['id', '_id'].indexOf(path) !== -1){
+        if(options.stop){
+            deferred.resolve(self[path]);
+        } else if(['id', '_id'].indexOf(path) !== -1){
             if(cb) cb(null, self[path]);
             deferred.resolve(self[path]);
         } else if (util.isNullOrUndefined(self[path])) {
