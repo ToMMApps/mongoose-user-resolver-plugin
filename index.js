@@ -32,26 +32,34 @@ module.exports = function(schema, options){
             var err = new TypeError(path + " is null or undefined");
             if(cb) cb(err);
             deferred.reject(err);
-        } else if (self[path].getUserId && util.isFunction(self[path].getUserId)) {
+        } else if (self[path].getUserId) {
             if(cb) self[path].getUserId(cb);
             deferred.resolve(self[path].getUserId());
         } else {
             var referencedModel = schema.paths[path].options.ref;
-            mongoose.model(referencedModel).findById(self[path]).exec(function(err, instance){
-                if(err) {
-                    if(cb) cb(err);
-                    deferred.reject(err);
-                } else {
-                    if (instance && instance.getUserId && util.isFunction(instance.getUserId)) {
-                        if(cb) instance.getUserId(cb);
-                        deferred.resolve(instance.getUserId());
-                    } else {
-                        err = new TypeError(path + " has no such method 'getUserId'");
+
+            if(util.isNullOrUndefined(referencedModel)){
+                var err = new Error("ref is not defined");
+                if(cb) cb(err);
+                deferred.reject(err);
+            } else {
+                mongoose.model(referencedModel).findById(self[path]).exec(function(err, instance){
+                    if(err) {
                         if(cb) cb(err);
                         deferred.reject(err);
+                    } else {
+                        if (instance && instance.getUserId && util.isFunction(instance.getUserId)) {
+                            if(cb) instance.getUserId(cb);
+                            deferred.resolve(instance.getUserId());
+                        } else {
+                            err = new TypeError(path + " has no such method 'getUserId'");
+                            if(cb) cb(err);
+                            deferred.reject(err);
+                        }
                     }
-                }
-            });
+                });
+            }
+
         }
 
         return deferred.promise;
