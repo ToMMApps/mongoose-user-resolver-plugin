@@ -2,15 +2,17 @@ describe("index", function () {
     var mongoose = require('mongoose');
     var mockgoose = require('mockgoose');
     var expect = require('expect.js');
-    var Q = require('q');
     var sinon = require('sinon');
 
     mockgoose(mongoose); //for all further tests a mocked version of mongoose will be used
 
     var plugin = require('../index');
 
-    before(function () {
-        mongoose.connect("");
+    before(function (done) {
+        mongoose.connect('mongodb://localhost/test', function (error) {
+            if (error) throw error; // Handle failed connection
+            done();
+        });
     });
 
     var sandbox;
@@ -56,25 +58,27 @@ describe("index", function () {
 
         var ExampleModel =  mongoose.model('example', ExampleSchema);
 
-        sandbox.stub(ExampleModel, "findById");
-
         var instance = new ExampleModel({
             user: mongoose.Types.ObjectId()
         });
 
-        instance.getUserId(function (err, userId) {
-            expect(err).to.be.an('object');
-            multiDone();
-        });
-        
-        instance.getUserId().catch(function () {
-            multiDone();
+        instance.save(function (err) {
+            expect(err).to.be(null);
+
+            instance.getUserId(function (err, userId) {
+                expect(err).to.be.an('object');
+                multiDone();
+            });
+
+            instance.getUserId().catch(function () {
+                multiDone();
+            });
         });
     });
 
     it("should reject if the given path is undefined", function (done) {
         var ExampleSchema = mongoose.Schema({
-            _id: mongoose.Schema.ObjectId
+            user: mongoose.Schema.ObjectId
         });
 
         var multiDone = multipleDone(2, done);
@@ -83,20 +87,24 @@ describe("index", function () {
 
         var ExampleModel =  mongoose.model('example', ExampleSchema);
 
-        sandbox.stub(ExampleModel, "findById");
-
         var instance = new ExampleModel({
             user: mongoose.Types.ObjectId()
         });
+        
+        instance.save(function (err) {
+            expect(err).to.be(null);
 
-        instance.getUserId(function (err, userId) {
-            expect(err).to.be.an('object');
-            multiDone();
-        });
+            instance.getUserId(function (err, userId) {
+                expect(err).to.be.an('object');
+                multiDone();
+            });
 
-        instance.getUserId().catch(function () {
-            multiDone();
-        });
+            instance.getUserId().catch(function () {
+                multiDone();
+            });
+        })
+
+
     });
 
     it("should resolve if ref is not specified but stop is", function (done) {
@@ -110,21 +118,23 @@ describe("index", function () {
 
         var ExampleModel =  mongoose.model('example', ExampleSchema);
 
-        sandbox.stub(ExampleModel, "findById");
-
         var instance = new ExampleModel({
             user: mongoose.Types.ObjectId()
         });
 
-        instance.getUserId(function (err, userId) {
+        instance.save(function (err, instance) {
             expect(err).to.be(null);
-            expect(userId).to.be(instance.user);
-            multiDone();
-        });
 
-        instance.getUserId().then(function (userId) {
-            expect(userId).to.be(instance.user);
-            multiDone();
+            instance.getUserId(function (err, userId) {
+                expect(err).to.be(null);
+                expect(userId).to.be(instance.user);
+                multiDone();
+            });
+
+            instance.getUserId().then(function (userId) {
+                expect(userId).to.be(instance.user);
+                multiDone();
+            });
         });
     });
 
@@ -138,9 +148,7 @@ describe("index", function () {
 
         ExampleChildSchema.plugin(plugin, {path: 'user'});
 
-        var ExampleSchema = mongoose.Schema({
-            _id: mongoose.Schema.ObjectId
-        });
+        var ExampleSchema = mongoose.Schema({});
 
         ExampleSchema.plugin(plugin, {path: '_id'});
 
@@ -149,31 +157,29 @@ describe("index", function () {
 
         var multiDone = multipleDone(2, done);
 
-        var instance = new ExampleModel({
-            _id: mongoose.Types.ObjectId()
-        });
+        var instance = new ExampleModel({});
 
-        var childInstance = new ExampleChildModel({
-            _id: mongoose.Types.ObjectId(),
-            user: instance._id
-        });
+        instance.save(function (err, instance) {
 
-        sandbox.stub(ExampleModel, "findById").withArgs(instance._id).returns({
-            exec: function (cb) {
-                cb(null, instance);
-            }
-        });
-        sandbox.stub(ExampleChildModel, "findById");
+            var childInstance = new ExampleChildModel({
+                user: instance._id
+            });
 
-        childInstance.getUserId(function(err, userId){
-            expect(userId).to.be(instance._id);
-            multiDone();
-        });
-        
-        childInstance.getUserId().then(function (userId) {
-            expect(userId).to.be(instance._id);
-            multiDone();
-        });
+            childInstance.save(function (err, childInstance) {
+
+                childInstance.getUserId(function(err, userId){
+                    expect(userId).to.eql(instance._id);
+                    multiDone();
+                });
+
+                childInstance.getUserId().then(function (userId) {
+                    expect(userId).to.eql(instance._id);
+                    multiDone();
+                });
+            })
+        })
+
+
     });
 
     it("should reject if the referenced entry has no method getUserId", function (done) {
@@ -186,38 +192,30 @@ describe("index", function () {
 
         ExampleChildSchema.plugin(plugin, {path: 'user'});
 
-        var ExampleSchema = mongoose.Schema({
-            _id: mongoose.Schema.ObjectId
-        });
+        var ExampleSchema = mongoose.Schema({});
 
         var ExampleModel =  mongoose.model('example', ExampleSchema);
         var ExampleChildModel =  mongoose.model('exampleChild', ExampleChildSchema);
 
         var multiDone = multipleDone(2, done);
 
-        var instance = new ExampleModel({
-            _id: mongoose.Types.ObjectId()
-        });
+        var instance = new ExampleModel({});
 
-        var childInstance = new ExampleChildModel({
-            _id: mongoose.Types.ObjectId(),
-            user: instance._id
-        });
+        instance.save(function (err, instance) {
+            var childInstance = new ExampleChildModel({
+                user: instance._id
+            });
 
-        sandbox.stub(ExampleModel, "findById").withArgs(instance._id).returns({
-            exec: function (cb) {
-                cb(null, instance);
-            }
-        });
-        sandbox.stub(ExampleChildModel, "findById");
+            childInstance.save(function (err, childInstance) {
+                childInstance.getUserId(function(err){
+                    expect(err).to.be.an('object');
+                    multiDone();
+                });
 
-        childInstance.getUserId(function(err, userId){
-            expect(err).to.be.an('object');
-            multiDone();
-        });
-
-        childInstance.getUserId().catch(function () {
-            multiDone();
+                childInstance.getUserId().catch(function () {
+                    multiDone();
+                });
+            });
         });
     });
 });
