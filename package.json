@@ -1,15 +1,17 @@
 {
   "name": "mongoose-user-resolver-plugin",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "coverage": "istanbul cover _mocha"
+    "cover": "istanbul cover _mocha",
+    "mocha-junit-report": "mocha test --reporter mocha-junit-reporter",
+    "istanbul-cobertura-report": "istanbul cover -x test _mocha -report cobertura"
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.tomm-apps.de:henning.gerrits/mongoose-user-resolver-plugin.git"
+    "url": "https://github.com/ToMMApps/mongoose-user-resolver-plugin.git"
   },
   "author": "Henning Gerrits",
   "license": "ISC",
@@ -18,7 +20,9 @@
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
+    "istanbul": "^0.3.20",
     "mocha": "^2.2.5",
+    "mocha-junit-reporter": "^1.6.1",
     "mockgoose": "^2.0.3",
     "mongoose": "~3.8",
     "sinon": "^1.16.1"
