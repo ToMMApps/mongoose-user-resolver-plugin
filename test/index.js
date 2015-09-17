@@ -1,33 +1,45 @@
 describe("index", function () {
     var mongoose = require('mongoose');
-    var mockgoose = require('mockgoose');
     var expect = require('expect.js');
     var sinon = require('sinon');
-
-    mockgoose(mongoose); //for all further tests a mocked version of mongoose will be used
 
     var plugin = require('../index');
 
     before(function (done) {
-        mongoose.connect('mongodb://localhost/test', function (error) {
+        var host = process.env.MONGODB_HOST || 'localhost';
+        var port = process.env.MONGODB_PORT || 27017;
+        var database = process.env.MONGODB_DATABSE || 'mongoose-user-resolver-test';
+
+        var uri = "mongodb://" + host + ":" + port + "/" + database;
+
+        mongoose.connect(uri, function (error) {
             if (error) throw error; // Handle failed connection
+            console.log("connected to " + uri);
             done();
         });
     });
 
     var sandbox;
 
+    before(function (done) {
+        sandbox = sinon.sandbox.create();
+        mongoose.connection.once('open', done);
+    });
+
+    after(function (done) {
+        mongoose.connection.close(done);
+    });
+
+    afterEach(function (done) {
+        sandbox.restore();
+        mongoose.connection.db.dropDatabase(done);
+    });
+
     beforeEach(function () {
         sandbox = sinon.sandbox.create();
     });
 
     afterEach(function () {
-        sandbox.restore();
-    });
-
-    afterEach(function () {
-        mockgoose.reset();
-
         delete mongoose.connection.models['example'];
         delete mongoose.connection.models['exampleChild'];
     });

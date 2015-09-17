@@ -28,7 +28,7 @@ module.exports = function(schema, options){
         } else if(['id', '_id'].indexOf(path) !== -1){
             if(cb) cb(null, self[path]);
             deferred.resolve(self[path]);
-        } else if (util.isNullOrUndefined(self[path])) {
+        } else if (!self[path]) {
             var err = new TypeError(path + " is null or undefined");
             if(cb) cb(err);
             deferred.reject(err);
@@ -38,7 +38,7 @@ module.exports = function(schema, options){
         } else {
             var referencedModel = schema.paths[path].options.ref;
 
-            if(util.isNullOrUndefined(referencedModel)){
+            if(!referencedModel){
                 var err = new Error("ref is not defined");
                 if(cb) cb(err);
                 deferred.reject(err);
@@ -48,7 +48,7 @@ module.exports = function(schema, options){
                         if(cb) cb(err);
                         deferred.reject(err);
                     } else {
-                        if (instance && instance.getUserId && util.isFunction(instance.getUserId)) {
+                        if (instance && instance.getUserId && (typeof instance.getUserId === 'function')) {
                             if(cb) instance.getUserId(cb);
                             deferred.resolve(instance.getUserId());
                         } else {
