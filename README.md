@@ -62,3 +62,12 @@ This model references the above project model.
 
 Calling getUserId on a file instance returns the userId that is referenced from the referenced project!
 With this technique you can easily build authentication and verify-algorithms that are independent from the concrete model.
+
+Code-Quality
+---------------
+
+Current Jenkins report for this project:
+- ![BuildStatus](http://jenkins.tomm-apps.de/buildStatus/icon?job=mongoose-user-resolver-plugin)
+- ![Test](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/test)
+- ![LastBuild](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/lastbuild)
+- ![CodeCoverageInJenkins](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/coverage)
