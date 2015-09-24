@@ -1,6 +1,11 @@
 # Mongoose-User-Resolver-Plugin
 Automatically resolves the owning user of every model.
 
+![BuildStatus](http://jenkins.tomm-apps.de/buildStatus/icon?job=mongoose-user-resolver-plugin)
+![Test](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/test)
+![LastBuild](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/lastbuild)
+![CodeCoverageInJenkins](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/coverage)
+
 Installation
 -----------
 
@@ -15,7 +20,7 @@ The plugin is configured by using the plugin function like any other mongoose pl
 
 Assume you have a model project with a name and a owning user:
 
-```
+```javascript
 var ProjectSchema = mongoose.Schema({
     name: {
         type: String,
@@ -31,7 +36,7 @@ var ProjectSchema = mongoose.Schema({
 
 The resolver-plugin would then be configured like this:
 
-```
+```javascript
 ProjectSchema.plugin(require('mongoose-user-resolver-plugin'), {path: 'user', stop: true});
 ```
 
@@ -43,7 +48,7 @@ The clue is that this does also work on instances that reference this project, f
 
 Assume we have another model file:
 
-```
+```javascript
 var FileSchema = mongoose.Schema({
     basename: {
         required: true,
@@ -62,12 +67,3 @@ This model references the above project model.
 
 Calling getUserId on a file instance returns the userId that is referenced from the referenced project!
 With this technique you can easily build authentication and verify-algorithms that are independent from the concrete model.
-
-Code-Quality
----------------
-
-Current Jenkins report for this project:
-- ![BuildStatus](http://jenkins.tomm-apps.de/buildStatus/icon?job=mongoose-user-resolver-plugin)
-- ![Test](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/test)
-- ![LastBuild](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/lastbuild)
-- ![CodeCoverageInJenkins](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/coverage)
