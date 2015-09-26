@@ -6,15 +6,13 @@ Automatically resolves the owning user of every model.
 ![LastBuild](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/lastbuild)
 ![CodeCoverageInJenkins](http://jenkins.tomm-apps.de:3434/badge/mongoose-user-resolver-plugin/coverage)
 
-Installation
------------
+## Installation
 
-```
+```javascript
 npm install mongoose-user-resolver-plugin
 ```
 
-Usage
-----------
+## Usage
 
 The plugin is configured by using the plugin function like any other mongoose plugin.
 
@@ -67,3 +65,7 @@ This model references the above project model.
 
 Calling getUserId on a file instance returns the userId that is referenced from the referenced project!
 With this technique you can easily build authentication and verify-algorithms that are independent from the concrete model.
+
+## License
+
+MIT
